@@ -1,0 +1,67 @@
+import { useState } from 'react';
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
+
+const weights = {
+  Originality: 2,
+  Feasibility: 3,
+  MarketSize: 3,
+  IPDefensibility: 1,
+  ExecutionReadiness: 1,
+};
+
+export default function IdeaEvaluator() {
+  const [idea, setIdea] = useState('');
+  const [description, setDescription] = useState('');
+  const [result, setResult] = useState(null);
+
+  const evaluateIdea = () => {
+    const scores = {
+      Originality: 4,
+      Feasibility: 4,
+      MarketSize: 3,
+      IPDefensibility: 3,
+      ExecutionReadiness: 2,
+    };
+
+    const total = Object.entries(scores).reduce((acc, [key, val]) => {
+      return acc + val * weights[key];
+    }, 0);
+
+    let value = '';
+    if (total <= 10) value = "$0 – $1,000";
+    else if (total <= 25) value = "$1,000 – $10K";
+    else if (total <= 40) value = "$10K – $100K";
+    else if (total <= 55) value = "$100K – $1M";
+    else value = "$1M+";
+
+    setResult({ scores, total, value });
+  };
+
+  return (
+    <div className="p-6 max-w-2xl mx-auto">
+      <h1 className="text-3xl font-bold mb-4">💡 Idea Evaluation Tool</h1>
+      <Input placeholder="Idea Name" value={idea} onChange={(e) => setIdea(e.target.value)} className="mb-4" />
+      <Textarea placeholder="Describe your idea..." value={description} onChange={(e) => setDescription(e.target.value)} className="mb-4" />
+      <Button onClick={evaluateIdea} className="mb-4">Evaluate</Button>
+
+      {result && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          <Card>
+            <CardContent className="space-y-2 p-4">
+              <h2 className="text-xl font-semibold">📊 Evaluation Results</h2>
+              {Object.entries(result.scores).map(([key, score]) => (
+                <p key={key}><strong>{key}:</strong> {score} × {weights[key]} = {score * weights[key]}</p>
+              ))}
+              <p className="font-bold">Total Score: {result.total} / 65</p>
+              <p className="text-green-600 font-bold">Estimated Value: {result.value}</p>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+    </div>
+  );
+}
